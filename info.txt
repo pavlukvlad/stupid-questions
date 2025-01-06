@@ -1,0 +1,202 @@
+____________________ Game Information ______________________
+
+Game Name: Stupid Questions
+Genre: 2D, Platformer, Runner, Horror
+Platforms: Windows
+Programming Language: Python (Pygame)
+Game Language: English, Russian, Ukrainian
+Gameplay Time: 2 hours
+
+_________________________Game Concept________________________
+The main character is running away from their thoughts, which are eating them.
+
+Intro:
+What do you think about life?
+"Is it fair? Bad? Good? Bright? A comedy? Bad luck? Injustice? Emptiness? A good story? Death? Peoples?
+Your room? Work? The cycle? Hell? Heaven? Horror? Learning? Choice? Freedom? Prison? Pleasure? Trauma? Psykos? Envy?
+Random words?
+Does it have any meaning?
+Though...
+DOES ANYONE CARE ABOUT YOUR OPINION?"
+
+Gameplay:
+After this, you’re transported to a location resembling summer:
+"Childhood, summer, visual novel, anime, the brightest time of your life?"
+You’re shown the controls:
+
+W, A, D — Movement
+F — Switch skills (20 seconds)
+E — x2 speed up / x2 speed down (30 seconds)
+Q — Stop time for 1 second / stop player for 1 second (30 seconds)
+Spheres appear that reduce the cooldown for all spells by -10 seconds.
+Then, the following text appears on the screen, one by one:
+
+"Unknown Artist - death?.mp3"
+"Unknown Artist - lose?.mp3"
+"Unknown Artist - apathy?.mp3"
+
+After this, you must run away from the darkness that moves from left to right. 
+The darkness moves very slowly, but after 30 seconds, the main character will be unable to move and will die.
+
+"People sing about fear more often than hope. They carry negativity more than positivity. 
+They cry more than they do. I hate the weak, I hate myself. Life is like a sad Japanese indie track on repeat xD."
+
+next lvl
+
+Heros Consciousness:
+You are transported into an endless corridor, where you must enter any room to start the first level.
+
+"The sounds behind the doors resemble the screams of a person whose closest relative is about to die."
+
+Entering a room will transport you to the first level.
+
+Stage 8: Despair?
+The level has two contrasting colors. A wave moves quickly from the right side of the map to the left.
+Faceless creatures that resemble you will appear in front of you. You cannot kill them, but they can kill you with a single touch.
+After death, you will be sent back to the beginning of the game.
+
+"It would be nice if death worked like here in real life." — This text appears only after the first death.
+
+The map and colors change, and after you complete the level, you’re transported to the second one.
+
+Stage 1: ****?
+Level looks like tutorial lvl. A faster wave comes from the left side of the map. 
+The enemies are contrasting energy clusters of the same color as the previous level.
+Upon death, the player returns to the start and must complete the level again.
+
+"h p?" — This text appears only after the first death.
+
+Before the end of the level, the player can only run backward, 
+which leads to defeat, and then they are transported to the third level.
+
+Stage 3: Hope
+All spells are blocked.
+The level is dark, with a TV effect. There’s limited vision. 
+The wave moves quickly from left to right and right to left. The player keeps moving forward until they reach the end of the level.
+
+If the player reaches the end, they’ll encounter an arcade machine, and interacting with it will start a mini-game similar to Mario.
+
+Stage 4: Hello! How’s it going?
+Responses:
+Everythings good - player get 3 end
+Everythings good (I want to die)
+
+"Great! Go to the end..."
+The level resembles the style of 8-bit games, with enemies being characters from Mario Bros. 
+The mechanics are the same. At the end, there will be an arcade machine.
+
+"Your world is a game? Does anything depend on you? How many endings are there in your game?
+Will your ending be good or bad? Did you enjoy the gameplay?
+Probably not...
+The hero is rotting."
+
+Stage 6
+The world is white, with black outlines. The wave moves from left to right. The hero runs to the center, where they meet their shadow. The wave disappears, shadow wanna kill player, and the hero continues running to the end of the level.
+If the hero dies, everything starts again.
+
+"Me?"  — This text appears only after the first death.
+if player die 10 times he get 2 end
+
+Stage 7:
+
+defoult end:
+The hero wakes up and hangs themselves.
+
+2 end:
+The shadow wakes up.
+
+3 end:
+The hero looks into the mirror. (or shadow)
+
+
+Outro:
+What do you think about death?
+You die...
+You are greeted by heaven, and your life will resemble soft ambient music.
+Or you deserve hell, where your suffering will last forever.
+Though, hell might be one of the best places to be.
+Imagine you die, and only infinity greets you. 
+Or eternal darkness...
+Though that’s not the worst option.
+Imagine you die, and nothing awaits you.
+
+_____________________________________arts_____________________________________
+
+    Training (Stage 1):
+"Bright, simple design resembling summer and childhood.
+Objects and background elements related to childhood and innocence (trees, toys, fences).
+Basic tutorial markers for controls."
+
+    Stage 6:
+Black and white theme with a sketch/doodle style.
+Objects with surreal and distorted designs (e.g., floating stairs, abstract patterns).
+
+    Stage 4:
+8-bit retro style resembling Mario Bros.
+Pixelated platforms, pipes, and enemies resembling classic arcade games.
+
+    Stage 8:
+High-contrast color scheme (e.g., red and black or white and black).
+Ominous elements like broken objects, cracks, or unsettling textures.
+
+    Player Animations
+Run: Smooth and energetic movement cycle.
+Idle: Breathing or slight swaying animation.
+Jump: Dynamic pose for ascent and descent.
+Time Stop: Subtle glowing or freezing aura around the player.
+x2 Speed Up: Blurred effect trail behind the player.
+x2 Speed Down: Heavy, sluggish movement visuals.
+Stop Player: Pausing stance with a glow or ripple effect.
+Die: Dramatic falling or collapsing animation.
+
+    Shadow Animations
+Run: Aggressive, fluid motion with sharp edges.
+Idle: Menacing posture with slight twitching or pulsing.
+Jump: Agile, striking leap animation.
+
+    Enemy Animations
+Faceless Creatures (Stage 8):
+Creeping, glitchy movement.
+
+    Idle breathing or swaying animation.
+Lethal touch effect with an explosion or distortion visual.
+
+    Energy Clusters (Stage 1):
+Pulsating glow.
+Exploding effect upon impact.
+
+    Mario-Style Enemies (Stage 4):
+Basic walking and attack animations (e.g., jumping on the player).
+Environmental Animations
+
+    Waves (Stages 6 and 8):
+Flowing, ominous motion with visual effects (e.g., distortion or blur).
+
+    Arcade Machine Interaction (Stages 3 & 4):
+Flickering screen and button press effect.
+
+        Cutscene/Outro Animations 
+
+Hero Waking Up and Hanging Themselves (Default Ending):
+Slow, melancholic motion leading to the scene's climax.
+
+Shadow Waking Up (2nd Ending):
+Eerie awakening with ominous movements.
+
+Hero Looking into the Mirror (3rd Ending):
+Subtle, introspective animation with reflective effects.
+
+        UI Elements
+
+    Level Introduction Text: Animated appearance for in-game text.
+    Spell Cooldown Indicators: Dynamic visuals showing cooldown reduction.
+    Health or Timer Indicators: Simple, unobtrusive UI design.
+    Miscellaneous Assets
+    Spheres (Cooldown Reduction): Floating, glowing objects with a collection effect.
+    Endless Corridor (Hero’s Consciousness): Background details with looping doors and unsettling effects.
+    Mirror (Stage 7): Reflective, high-contrast visual style.
+    Death and Restart Effects: Unique visuals for each death type or restart.
+    Room Doors (Hero’s Consciousness): Distinctive designs for each door (e.g., screams, visual indicators).
+
+
+____________________________________________Mechanics____________________________________________
