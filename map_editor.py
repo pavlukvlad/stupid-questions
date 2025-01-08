@@ -28,6 +28,7 @@ class Editor:
         self.movement = [False, False, False, False]
         
         self.tilemap = Tilemap(self, tile_size=16)
+        self.decor = False
         
         try:
             self.tilemap.load('map.json')
@@ -39,21 +40,19 @@ class Editor:
         self.tile_list = list(self.tileset)
         self.tile_group = 0
         
-        self.decorations = False
-        
         self.clicking = False
         self.right_clicking = False
         
     def run(self):
         while True:
             self.display.fill((0, 0, 0))
+            self.display_2.fill((0, 0, 0))
             
             self.scroll[0] += (self.movement[1] - self.movement[0]) * 2
             self.scroll[1] += (self.movement[3] - self.movement[2]) * 2
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
-            self.tilemap.render(self.display, offset=render_scroll)
-            self.tilemap.render(self.display_2, offset=render_scroll)
+            self.tilemap.render(self.display, self.display_2, offset=render_scroll)
             
             current_tile_img = self.tileset[self.tile_list[self.tile_group]].copy()
             current_tile_img.set_alpha()
@@ -63,9 +62,14 @@ class Editor:
             tile_pos = (int((mpos[0] + self.scroll[0]) // self.tilemap.tile_size), int((mpos[1] + self.scroll[1]) // self.tilemap.tile_size))
             
             self.display.blit(current_tile_img, (tile_pos[0] * self.tilemap.tile_size - self.scroll[0], tile_pos[1] * self.tilemap.tile_size - self.scroll[1]))
-
+            
+            # if decor - ":", else - ";"
             if self.clicking:
-                self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'tile_id': self.tile_list[self.tile_group], 'pos': tile_pos}
+                if self.decor:
+                    self.tilemap.tilemap[str(tile_pos[0]) + ':' + str(tile_pos[1])] = {'tile_id': self.tile_list[self.tile_group], 'pos': tile_pos}
+                else:
+                    self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'tile_id': self.tile_list[self.tile_group], 'pos': tile_pos}
+                    
             if self.right_clicking:
                 tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
                 if tile_loc in self.tilemap.tilemap:
@@ -99,7 +103,9 @@ class Editor:
                         self.movement[2] = True
                     if event.key == pygame.K_DOWN:
                         self.movement[3] = True
-                    if event.key == pygame.K_o:
+                    if event.key == pygame.K_q:
+                        self.decor = not self.decor
+                    if event.key == pygame.K_e:
                         self.tilemap.save('map.json')
                         
                     if event.key == pygame.K_a:
@@ -125,13 +131,15 @@ class Editor:
                         self.movement[2] = False
                     if event.key == pygame.K_DOWN:
                         self.movement[3] = False
-                    if event.key == pygame.K_LSHIFT:
-                        self.shift = False
+
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+            
+            self.display_2.set_alpha()
+            self.display_2.set_colorkey((0,0,0))
+            self.screen.blit(pygame.transform.scale(self.display_2, self.screen.get_size()), (0, 0))
+            
             pygame.display.update()
             self.clock.tick(60)
 
 Editor().run()
-
-"初音階段 - Vacant World (2013)"

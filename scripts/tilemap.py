@@ -25,27 +25,7 @@ class Tilemap:
         self.game = game
         self.tile_size = tile_size
         self.tilemap = {}
-        self.offgrid_tiles = []
-        
-    def extract(self, id_pairs, keep=False):
-        matches = []
-        for tile in self.offgrid_tiles.copy():
-            if (tile['tile_id']) in id_pairs:
-                matches.append(tile.copy())
-                if not keep:
-                    self.offgrid_tiles.remove(tile)
-                    
-        for loc in self.tilemap:
-            tile = self.tilemap[loc]
-            if (tile['tile_id']) in id_pairs:
-                matches.append(tile.copy())
-                matches[-1]['pos'] = matches[-1]['pos'].copy()
-                matches[-1]['pos'][0] *= self.tile_size
-                matches[-1]['pos'][1] *= self.tile_size
-                if not keep:
-                    del self.tilemap[loc]
-        
-        return matches
+        self.decor_tiles = []
     
     def tiles_around(self, pos):
         tiles = []
@@ -84,14 +64,16 @@ class Tilemap:
 
 
     def render(self, surf, surf_2=None, offset=(0, 0)):
-        for tile in self.offgrid_tiles: 
-            surf.blit(self.game.tileset[tile['tile_id']], (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))
-            #surf_2.blit(self.game.tileset[tile['tile_id']], (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))
             
         for x in range(offset[0] // self.tile_size, (offset[0] + surf.get_width()) // self.tile_size + 1):
             for y in range(offset[1] // self.tile_size, (offset[1] + surf.get_height()) // self.tile_size + 1):
                 loc = str(x) + ';' + str(y)
+                decor_loc = str(x) + ':' + str(y)
+                
                 if loc in self.tilemap:
                     tile = self.tilemap[loc]
                     surf.blit(self.game.tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
-                    #surf_2.blit(self.game.tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
+                    
+                if decor_loc in self.tilemap:
+                    tile = self.tilemap[decor_loc]
+                    surf_2.blit(self.game.tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))                    
