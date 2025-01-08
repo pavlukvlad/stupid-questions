@@ -28,7 +28,9 @@ class Editor:
         self.movement = [False, False, False, False]
         
         self.tilemap = Tilemap(self, tile_size=16)
-        self.decor = False
+        
+        # if decor - ":", else - ";"
+        self.decor = ';'
         
         try:
             self.tilemap.load('map.json')
@@ -63,18 +65,17 @@ class Editor:
             
             self.display.blit(current_tile_img, (tile_pos[0] * self.tilemap.tile_size - self.scroll[0], tile_pos[1] * self.tilemap.tile_size - self.scroll[1]))
             
-            # if decor - ":", else - ";"
             if self.clicking:
                 if self.decor:
-                    self.tilemap.tilemap[str(tile_pos[0]) + ':' + str(tile_pos[1])] = {'tile_id': self.tile_list[self.tile_group], 'pos': tile_pos}
+                    self.tilemap.tilemap[str(tile_pos[0]) + self.decor + str(tile_pos[1])] = {'tile_id': self.tile_list[self.tile_group], 'pos': tile_pos}
                 else:
-                    self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'tile_id': self.tile_list[self.tile_group], 'pos': tile_pos}
+                    self.tilemap.tilemap[str(tile_pos[0]) + self.decor + str(tile_pos[1])] = {'tile_id': self.tile_list[self.tile_group], 'pos': tile_pos}
                     
             if self.right_clicking:
-                tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
+                tile_loc = str(tile_pos[0]) + self.decor + str(tile_pos[1])
                 if tile_loc in self.tilemap.tilemap:
                     del self.tilemap.tilemap[tile_loc]
-            
+
             self.display.blit(current_tile_img, (5, 5))
 
             for event in pygame.event.get():
@@ -95,6 +96,7 @@ class Editor:
                         self.right_clicking = False
                         
                 if event.type == pygame.KEYDOWN:
+                
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = True
                     if event.key == pygame.K_RIGHT:
@@ -103,8 +105,11 @@ class Editor:
                         self.movement[2] = True
                     if event.key == pygame.K_DOWN:
                         self.movement[3] = True
+                        
                     if event.key == pygame.K_q:
-                        self.decor = not self.decor
+                        if self.decor == ';': self.decor = ':' 
+                        else: self.decor = ';'
+                        
                     if event.key == pygame.K_e:
                         self.tilemap.save('map.json')
                         
@@ -114,7 +119,6 @@ class Editor:
                     if event.key == pygame.K_d:
                         self.tile_group = (self.tile_group + 1) % len(self.tile_list)
                         self.tile_variant = 0
-                        
                     if event.key == pygame.K_w:
                         self.tile_group = (self.tile_group - int(self.test_tileset.tileset_image.get_width()/self.test_tileset.tile_size)) % len(self.tile_list)
                         self.tile_variant = 0
@@ -123,6 +127,7 @@ class Editor:
                         self.tile_variant = 0                    
                         
                 if event.type == pygame.KEYUP:
+                    
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
