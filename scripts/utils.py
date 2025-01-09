@@ -2,22 +2,12 @@ import os
 
 import pygame
 
-BASE_IMG_PATH = 'C:/Users/shize/Downloads/ninja_game/data/images/'
-
-
 def load_image(path):
-    img = pygame.image.load(BASE_IMG_PATH + path).convert()
+    img = pygame.image.load(path).convert()
     img.set_colorkey((0, 0, 0))
     return img
     
-def load_images(path):
-    images = []
-    for img_name in sorted(os.listdir(BASE_IMG_PATH + path)):
-        images.append(pygame.image.load(BASE_IMG_PATH + path + "/" + img_name).convert())
-    return images
-
-
-class Images():
+class Tileset():
     def __init__(self, tileset, tile_size):
         self.tileset = tileset
         self.tile_size = tile_size
@@ -39,19 +29,31 @@ class Images():
                 
 
         return tiles
-    
 
 class Animation:
-    def __init__(self, images, img_dur=5, loop=True):
-        self.images = images
+    def __init__(self, path, img_dur=5, loop=True, img_size=16):
         self.loop = loop
         self.img_duration = img_dur
         self.done = False
         self.frame = 0
+        self.img_size = img_size
+        self.path = path
+        self.images = self.load_frames()
     
     def copy(self):
-        return Animation(self.images, self.img_duration, self.loop)
+        return Animation(self.path, self.img_duration, self.loop)
     
+    def load_frames(self):
+        image = load_image(self.path)
+        image_width, image_height = pygame.image.load(self.path).convert().get_size()
+    
+        images = []
+        for y in range(0, image_height, self.img_size):
+            for x in range(0, image_width, self.img_size):
+                img = image.subsurface(pygame.Rect(x, y, self.img_size, self.img_size))
+                images.append(img)
+        return images
+
     def update(self):
         if self.loop:
             self.frame = (self.frame + 1) % (self.img_duration * len(self.images))

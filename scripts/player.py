@@ -1,7 +1,7 @@
 
 import pygame
 
-class PhysicsEntity:
+class PhysicsEntity():
     def __init__(self, game, e_type, pos, size):
         self.game = game
         self.type = e_type
@@ -23,7 +23,7 @@ class PhysicsEntity:
     def set_action(self, action):
         if action != self.action:
             self.action = action
-            self.animation = self.game.assets[self.type + '/' + self.action].copy()
+            self.animation = self.game.animations[self.type + '/' + self.action].copy()
         
     def update(self, tilemap, movement=(0, 0)):
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
@@ -83,10 +83,8 @@ class Player(PhysicsEntity):
         
         self.air_time += 1
         
-        if self.air_time > 120:
-            if not self.game.dead:
-                self.game.screenshake = max(16, self.game.screenshake)
-            self.game.dead += 1
+        #if self.air_time > 120:
+        #    self.game.dead += 1
         
         if self.collisions['down']:
             self.air_time = 0
@@ -116,8 +114,7 @@ class Player(PhysicsEntity):
             self.velocity[0] = min(self.velocity[0] + 0.1, 0)
     
     def render(self, surf, offset=(0, 0)):
-        if abs(self.dashing) <= 50:
-            super().render(surf, offset=offset)
+        super().render(surf, offset=offset)
             
     def jump(self):
         if self.wall_slide:
