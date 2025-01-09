@@ -9,8 +9,15 @@ class Game():
         pygame.init()
          
         self.screen = pygame.display.set_mode((960, 540))
-        self.display = pygame.Surface((320, 240), pygame.SRCALPHA)
-        self.display_2 = pygame.Surface((320, 240))
+        
+        self.display_width, self.display_height = 320, 180
+        
+        self.display = pygame.Surface((self.display_width, self.display_height))
+        self.display_2 = pygame.Surface((self.display_width, self.display_height))
+        
+        self.physics_display = pygame.Surface((self.display_width, self.display_height))
+        self.decorations_display = pygame.Surface((self.display_width, self.display_height))
+        self.background_display = pygame.Surface((self.display_width, self.display_height))
         
         self.clock = pygame.time.Clock()
         
@@ -20,13 +27,13 @@ class Game():
             'player/idle': Animation('data/assets/Animations/Player/idle/anim1.png', img_dur=6),
             'player/run': Animation('data/assets/Animations/Player/walk/anim1.png', img_dur=4),
             'player/jump': Animation('data/assets/Animations/Player/jump/anim1.png'),
-            'player/slide': Animation('data/assets/Animations/Player/slide/anim1.png'),
+            'player/wall_slide': Animation('data/assets/Animations/Player/slide/anim1.png'),
             'player/fall': Animation('data/assets/Animations/Player/fall/anim1.png'),
             'player/land': Animation('data/assets/Animations/Player/land/anim1.png')
         }
         
-        self.test_tileset = Tileset("data/assets/map_tiles/test_map/tileset.png", 16)
-        self.test_tileset.load_tileset()
+        self.test_tileset = Tileset("data/assets/map_tiles/test_map/tileset.png", 16).load_tileset()
+        
         
         self.player = Player(self, (50, 50), (8, 15))
         
@@ -47,7 +54,7 @@ class Game():
         #        self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
         
         
-        self.player.pos = [0,0]
+        self.player.pos = [14, 4]
         self.player.air_time = 0
             
         self.projectiles = []
@@ -60,16 +67,27 @@ class Game():
     
     def run(self):
         while True:
-            self.display.fill((0, 0, 0, 0))
+            self.background_display.fill((0, 0, 0))
+            self.physics_display.fill((0, 0, 0))
+            self.decorations_display.fill((0, 0, 0))
+
             self.display_2.fill((0, 0, 0, 0))
             
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
+            self.tilemap.render(
+                self.background_display,
+                self.physics_display,
+                self.decorations_display,
+                self.test_tileset,
+                offset=render_scroll,
+            )
+            
             if not self.dead:
                 self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
-                self.player.render(self.display, offset=render_scroll)
+                self.player.render(self.physics_display, offset=render_scroll)
             
             display_mask = pygame.mask.from_surface(self.display)
             display_sillhouette = display_mask.to_surface(setcolor=(0, 0, 0, 180), unsetcolor=(0, 0, 0, 0))
@@ -93,6 +111,15 @@ class Game():
                         self.movement[0] = False
                     if event.key == pygame.K_d:
                         self.movement[1] = False
+                        
+                        
+            self.display.blit(self.background_display, (0,0))
+
+            self.physics_display.set_colorkey((0, 0, 0))
+            self.display.blit(self.physics_display, (0,0))
+
+            self.decorations_display.set_colorkey((0, 0, 0))
+            self.display.blit(self.decorations_display, (0,0))
             
             self.display_2.blit(self.display, (0, 0))
 
