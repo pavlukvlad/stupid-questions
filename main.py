@@ -24,19 +24,17 @@ class Game():
         self.movement = [False, False]
         
         self.animations = {
-            'player/idle': Animation('data/assets/Animations/Player/idle/anim1.png', img_dur=6),
+            'player/idle': Animation('data/assets/Animations/Player/idle/anim1.png', img_dur=30),
             'player/run': Animation('data/assets/Animations/Player/walk/anim1.png', img_dur=4),
-            'player/jump': Animation('data/assets/Animations/Player/jump/anim1.png'),
+            'player/jump': Animation('data/assets/Animations/Player/jump/anim1.png', img_dur=8, loop=False),
             'player/wall_slide': Animation('data/assets/Animations/Player/slide/anim1.png'),
             'player/fall': Animation('data/assets/Animations/Player/fall/anim1.png'),
-            'player/land': Animation('data/assets/Animations/Player/land/anim1.png')
+            'player/land': Animation('data/assets/Animations/Player/land/anim1.png', img_dur=10, loop=False)
         }
         
         self.test_tileset = Tileset("data/assets/map_tiles/test_map/tileset.png", 16).load_tileset()
         
-        
         self.player = Player(self, (50, 50), (8, 15))
-        
                 
         self.tilemap = Tilemap(self, tile_size=16)
         
@@ -67,7 +65,7 @@ class Game():
     
     def run(self):
         while True:
-            self.background_display.fill((0, 0, 0))
+            self.background_display.fill((198, 183, 190))
             self.physics_display.fill((0, 0, 0))
             self.decorations_display.fill((0, 0, 0))
 
@@ -114,7 +112,8 @@ class Game():
                         
                         
             self.display.blit(self.background_display, (0,0))
-
+            
+            
             self.physics_display.set_colorkey((0, 0, 0))
             self.display.blit(self.physics_display, (0,0))
 

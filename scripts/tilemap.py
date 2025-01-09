@@ -76,7 +76,6 @@ class Tilemap:
                     tile = self.tilemap[physics_loc]
                     if not tile['tile_id'] in PHYSICS_TILES:
                         PHYSICS_TILES.append(tile['tile_id'])
-                    
                     physics_surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                     
                 if decor_loc in self.tilemap:

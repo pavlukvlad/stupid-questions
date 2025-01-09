@@ -65,7 +65,7 @@ class PhysicsEntity():
         
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
-            
+        
         self.animation.update()
         
     def render(self, surf, offset=(0, 0)):
@@ -77,6 +77,7 @@ class Player(PhysicsEntity):
         self.air_time = 0
         self.jumps = 1
         self.wall_slide = False
+        self.was_falling = False
     
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement=movement)
@@ -87,8 +88,16 @@ class Player(PhysicsEntity):
         #    self.game.dead += 1
         
         if self.collisions['down']:
+            if self.was_falling:
+                self.set_action('land')
+                self.was_falling = False
+                
             self.air_time = 0
             self.jumps = 1
+        else:
+            if self.velocity[1] > 0.5:
+                self.was_falling = True
+                self.set_action('fall')
             
         self.wall_slide = False
         if (self.collisions['right'] or self.collisions['left']) and self.air_time > 4:
