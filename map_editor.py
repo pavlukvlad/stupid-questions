@@ -1,6 +1,6 @@
 import sys
 import pygame
-from scripts.utils import Images
+from scripts.utils import Tileset
 from scripts.tilemap import Tilemap
 
 RENDER_SCALE = 3.0
@@ -43,7 +43,7 @@ class Editor:
         self.background_display = pygame.Surface((self.display_width, self.display_height))
 
         self.clock = pygame.time.Clock()
-        self.tileset = Images("data/assets/map_tiles/test_map/tileset.png", 16).load_tileset()
+        self.tileset = Tileset("data/assets/map_tiles/test_map/tileset.png", 16).load_tileset()
         self.tilemap = Tilemap(self, tile_size=16)
 
         self.movement = [False, False, False, False]
