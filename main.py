@@ -1,8 +1,9 @@
 import pygame, sys
 
-from scripts.utils import Animation, Tileset
-from scripts.player import PhysicsEntity, Player
+from scripts.utils import Animation, Tileset, load_image
+from scripts.player import Player
 from scripts.tilemap import Tilemap
+from scripts.ui import SkillsUI
 
 class Game():
     def __init__(self):
@@ -31,6 +32,12 @@ class Game():
             'player/wall_slide': Animation('data/assets/Animations/Player/slide/anim1.png'),
             'player/fall': Animation('data/assets/Animations/Player/fall/anim1.png'),
             'player/land': Animation('data/assets/Animations/Player/land/anim1.png', img_dur=10, loop=False)
+        }
+        
+        self.ui = {
+            'switch': SkillsUI(50,50, load_image('data/assets/spells/form_1.png'), load_image('data/assets/spells/form_2.png'), 405, 475, 3),
+            'spell_1': SkillsUI(50,50, load_image('data/assets/spells/paralysed.png'), load_image('data/assets/spells/time_stop.png'), 465, 475, 3),
+            'spell_2': SkillsUI(50,50, load_image('data/assets/spells/x2_speed.png'), load_image('data/assets/spells/x2_speed_2.png'), 525, 475, 3),
         }
         
         self.test_tileset = Tileset("data/assets/map_tiles/test_map/tileset.png", 16).load_tileset()
@@ -75,6 +82,8 @@ class Game():
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+            
+            mpos = pygame.mouse.get_pos()
             
             self.tilemap.render(
                 self.background_display,
@@ -130,6 +139,9 @@ class Game():
             
             img = self.font.render(str(int(self.clock.get_fps())), True, (1, 1, 1))
             self.screen.blit(img, (930, 10))
+            
+            for name, obj in self.ui.items():
+                obj.render(self.screen, mpos)
             
             pygame.display.update()
             self.clock.tick(60)

@@ -26,7 +26,6 @@ class Tileset():
                 
                 tile = self.tileset_image.subsurface(pygame.Rect(x, y, self.tile_size, self.tile_size))
                 tiles[tile_count] = tile
-                
 
         return tiles
 
