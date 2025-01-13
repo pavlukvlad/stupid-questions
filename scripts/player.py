@@ -76,32 +76,27 @@ class Player(PhysicsEntity):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0
         self.jumps = 1
-        
         self.form = True
-        
         self.wall_slide = False
         self.was_falling = False
+        self.move_speed = 0.1
     
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement=movement)
         
         self.air_time += 1
         
-        #if self.air_time > 120:
-        #    self.game.dead += 1
-        
         if self.collisions['down']:
             if self.was_falling:
                 self.set_action('land')
                 self.was_falling = False
-                
             self.air_time = 0
             self.jumps = 1
         else:
             if self.velocity[1] > 0.5:
                 self.was_falling = True
                 self.set_action('fall')
-            
+        
         self.wall_slide = False
         if (self.collisions['right'] or self.collisions['left']) and self.air_time > 4:
             self.wall_slide = True
@@ -119,12 +114,17 @@ class Player(PhysicsEntity):
                 self.set_action('run')
             else:
                 self.set_action('idle')
-                
-        if self.velocity[0] > 0:
-            self.velocity[0] = max(self.velocity[0] - 0.1, 0)
+        
+        if movement[0] > 0:
+            self.velocity[0] = min(self.velocity[0] + self.move_speed, self.move_speed)
+        elif movement[0] < 0:
+            self.velocity[0] = max(self.velocity[0] - self.move_speed, -self.move_speed)
         else:
-            self.velocity[0] = min(self.velocity[0] + 0.1, 0)
-    
+            if self.velocity[0] > 0:
+                self.velocity[0] = max(self.velocity[0] - 0.1, 0)
+            else:
+                self.velocity[0] = min(self.velocity[0] + 0.1, 0)
+
     def render(self, surf, offset=(0, 0)):
         super().render(surf, offset=offset)
             

@@ -126,6 +126,11 @@ class Game():
                     if event.key == pygame.K_f:
                         f_pressed = True
                         
+                        if self.player.form == True:
+                            self.player.move_speed *= 2
+                        else: 
+                            self.player.move_speed /= 2
+                        
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_q:
                        q_pressed = False
