@@ -26,6 +26,7 @@ class Game():
         self.movement = [False, False]
         
         self.animations = {
+            ''
             'player/idle': Animation('data/assets/Animations/Player/idle/anim1.png', img_dur=30),
             'player/run': Animation('data/assets/Animations/Player/walk/anim1.png', img_dur=6),
             'player/jump': Animation('data/assets/Animations/Player/jump/anim1.png', img_dur=7, loop=False),
@@ -35,9 +36,9 @@ class Game():
         }
         
         self.ui = {
-            'switch': SkillsUI(50,50, load_image('data/assets/spells/form_1.png'), load_image('data/assets/spells/form_2.png'), 405, 475, 3),
-            'spell_1': SkillsUI(50,50, load_image('data/assets/spells/paralysed.png'), load_image('data/assets/spells/time_stop.png'), 465, 475, 3),
-            'spell_2': SkillsUI(50,50, load_image('data/assets/spells/x2_speed.png'), load_image('data/assets/spells/x2_speed_2.png'), 525, 475, 3),
+            'switch': SkillsUI(50,50, load_image('data/assets/spells/form_1.png'), load_image('data/assets/spells/form_2.png'), 400, 475, 10, 'Q'),
+            'spell_1': SkillsUI(50,50, load_image('data/assets/spells/paralysed.png'), load_image('data/assets/spells/time_stop.png'), 460, 475, 15, 'E'),
+            'spell_2': SkillsUI(50,50, load_image('data/assets/spells/x2_speed.png'), load_image('data/assets/spells/x2_speed_2.png'), 520, 475, 15, 'F'),
         }
         
         self.test_tileset = Tileset("data/assets/map_tiles/test_map/tileset.png", 16).load_tileset()
@@ -59,7 +60,6 @@ class Game():
         #    if ':' in key:
         #        self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
         
-        
         self.player.pos = [14, 4]
         self.player.air_time = 0
             
@@ -72,6 +72,10 @@ class Game():
         self.transition = -30
     
     def run(self):
+        q_pressed = False
+        e_pressed = False
+        f_pressed = False
+        
         while True:
             self.background_display.fill((198, 183, 190))
             self.physics_display.fill((0, 0, 0))
@@ -115,9 +119,20 @@ class Game():
                         if self.player.jump():
                             pass
                     if event.key == pygame.K_q:
+                        q_pressed = True
                         self.player.form = not self.player.form
+                    if event.key == pygame.K_e:
+                        e_pressed = True
+                    if event.key == pygame.K_f:
+                        f_pressed = True
                         
                 if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_q:
+                       q_pressed = False
+                    if event.key == pygame.K_e:
+                        e_pressed = False
+                    if event.key == pygame.K_f:
+                        f_pressed = False
                     if event.key == pygame.K_a:
                         self.movement[0] = False
                     if event.key == pygame.K_d:
@@ -141,7 +156,16 @@ class Game():
             self.screen.blit(img, (930, 10))
             
             for name, obj in self.ui.items():
-                obj.render(self.screen, mpos)
+                obj.form = self.player.form
+                
+                if name == 'switch' and q_pressed:
+                    obj.render(self.screen, 'pressed')
+                elif name == 'spell_1' and e_pressed:
+                    obj.render(self.screen, 'pressed')
+                elif name == 'spell_2' and f_pressed:
+                    obj.render(self.screen, 'pressed')
+                else:
+                    obj.render(self.screen, mpos)
             
             pygame.display.update()
             self.clock.tick(60)
