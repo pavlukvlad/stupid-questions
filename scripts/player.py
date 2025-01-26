@@ -15,6 +15,8 @@ class PhysicsEntity():
         self.flip = False
         self.set_action('idle')
         
+        self.buffs = []
+        
         self.last_movement = [0, 0]
     
     def rect(self):
