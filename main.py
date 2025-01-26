@@ -3,7 +3,8 @@ import pygame, sys
 from scripts.utils import Animation, Tileset, load_image
 from scripts.player import Player
 from scripts.tilemap import Tilemap
-from scripts.ui import SkillsUI
+from scripts.ui import SkillsUI, BuffUI
+from scripts.buff import *
 
 class Game():
     def __init__(self):
@@ -36,9 +37,9 @@ class Game():
         }
         
         self.ui = {
-            'switch': SkillsUI(50,50, load_image('data/assets/spells/form_1.png'), load_image('data/assets/spells/form_2.png'), 400, 475, 10, 'Q'),
-            'spell_1': SkillsUI(50,50, load_image('data/assets/spells/paralysed.png'), load_image('data/assets/spells/time_stop.png'), 460, 475, 15, 'E'),
-            'spell_2': SkillsUI(50,50, load_image('data/assets/spells/x2_speed.png'), load_image('data/assets/spells/x2_speed_2.png'), 520, 475, 15, 'F'),
+            'switch': SkillsUI(50,50, load_image('data/assets/spells/form_1.png'), load_image('data/assets/spells/form_2.png'), 400, 475, 2, 'Q'),
+            'spell_1': SkillsUI(50,50, load_image('data/assets/spells/paralysed.png'), load_image('data/assets/spells/time_stop.png'), 460, 475, 2, 'E'),
+            'spell_2': SkillsUI(50,50, load_image('data/assets/spells/x2_speed.png'), load_image('data/assets/spells/x2_speed_2.png'), 520, 475, 2, 'F'),
         }
         
         self.test_tileset = Tileset("data/assets/map_tiles/test_map/tileset.png", 16).load_tileset()
@@ -118,18 +119,37 @@ class Game():
                     if event.key == pygame.K_w:
                         if self.player.jump():
                             pass
-                    if event.key == pygame.K_q:
+                        
+                    if event.key == pygame.K_q and self.ui['switch'].active:
                         q_pressed = True
                         self.player.form = not self.player.form
-                    if event.key == pygame.K_e:
+                        
+                        self.ui['switch'].active = False
+                        
+                        
+                    if event.key == pygame.K_e and self.ui['spell_1'].active:
                         e_pressed = True
-                    if event.key == pygame.K_f:
+                        
+                        if self.player.form:
+                            self.player.buffs.append(Buff('Stun', 10, StunEffect, self.player))
+                        
+                        else:
+                            self.player.buffs.append(Buff('TimeStop', 10, TimeStopEffect, self.player))
+                            
+                        self.ui['spell_1'].active = False
+                            
+                        
+                    if event.key == pygame.K_f and self.ui['spell_2'].active:
                         f_pressed = True
                         
-                        if self.player.form == True:
-                            self.player.move_speed *= 2
-                        else: 
-                            self.player.move_speed /= 2
+                        if self.player.form:
+                            self.player.buffs.append(Buff('X2Speed', 10, X2SpeedEffect, self.player))
+                        
+                        else:
+                            self.player.buffs.append(Buff('X2Slow', 10, X2SpeedEffect, self.player))
+                            
+                        self.ui['spell_2'].active = False
+                        
                         
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_q:
@@ -173,6 +193,9 @@ class Game():
                     obj.render(self.screen, mpos)
             
             pygame.display.update()
+            
             self.clock.tick(60)
     
 Game().run()
+
+
