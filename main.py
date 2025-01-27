@@ -37,9 +37,9 @@ class Game():
         }
         
         self.ui = {
-            'switch': SkillsUI(50,50, load_image('data/assets/spells/form_1.png'), load_image('data/assets/spells/form_2.png'), 400, 475, 2, 'Q'),
-            'spell_1': SkillsUI(50,50, load_image('data/assets/spells/paralysed.png'), load_image('data/assets/spells/time_stop.png'), 460, 475, 2, 'E'),
-            'spell_2': SkillsUI(50,50, load_image('data/assets/spells/x2_speed.png'), load_image('data/assets/spells/x2_speed_2.png'), 520, 475, 2, 'F'),
+            'switch': SkillsUI(50,50, load_image('data/assets/spells/form_1.png'), load_image('data/assets/spells/form_2.png'), 400, 475, 2 , 'Q'),
+            'spell_1': SkillsUI(50,50, load_image('data/assets/spells/paralysed.png'), load_image('data/assets/spells/time_stop.png'), 460, 475, 10, 'E'),
+            'spell_2': SkillsUI(50,50, load_image('data/assets/spells/x2_speed.png'), load_image('data/assets/spells/x2_speed_2.png'), 520, 475, 10, 'F'),
         }
         
         self.test_tileset = Tileset("data/assets/map_tiles/test_map/tileset.png", 16).load_tileset()
@@ -73,9 +73,12 @@ class Game():
         self.transition = -30
     
     def run(self):
-        q_pressed = False
-        e_pressed = False
-        f_pressed = False
+        
+        button_conditions = {
+            'switch': False,
+            'spell_1': False,
+            'spell_2': False,
+        }
         
         while True:
             self.background_display.fill((198, 183, 190))
@@ -107,10 +110,15 @@ class Game():
             for offset in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 self.display_2.blit(display_sillhouette, offset)
             
+            for name, buff in self.player.buffs.items():
+                buff.activate_effect()
+            
             for event in pygame.event.get():
+                
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                    
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
                         self.movement[0] = True
@@ -121,43 +129,42 @@ class Game():
                             pass
                         
                     if event.key == pygame.K_q and self.ui['switch'].active:
-                        q_pressed = True
+                        button_conditions['switch'] = True
                         self.player.form = not self.player.form
                         
                         self.ui['switch'].active = False
                         
                         
                     if event.key == pygame.K_e and self.ui['spell_1'].active:
-                        e_pressed = True
+                        button_conditions['spell_1'] = True
                         
                         if self.player.form:
-                            self.player.buffs.append(Buff('Stun', 10, StunEffect, self.player))
+                            self.player.buffs['Stun'] = Buff('Stun', 3, StunEffect, self.player, load_image('data/assets/spells/paralysed.png'))
                         
                         else:
-                            self.player.buffs.append(Buff('TimeStop', 10, TimeStopEffect, self.player))
+                            self.player.buffs['TimeStop'] = Buff('TimeStop', 3, TimeStopEffect, self.player, load_image('data/assets/spells/time_stop.png'))
                             
                         self.ui['spell_1'].active = False
                             
                         
                     if event.key == pygame.K_f and self.ui['spell_2'].active:
-                        f_pressed = True
+                        button_conditions['spell_2'] = True
                         
                         if self.player.form:
-                            self.player.buffs.append(Buff('X2Speed', 10, X2SpeedEffect, self.player))
+                            self.player.buffs['X2Speed'] = Buff('X2Speed', 2, X2SpeedEffect, self.player, load_image('data/assets/spells/x2_speed.png'))
                         
                         else:
-                            self.player.buffs.append(Buff('X2Slow', 10, X2SpeedEffect, self.player))
+                            self.player.buffs['X2Gravity'] = Buff('X2Gravity', 2, X2GravityEffect, self.player, load_image('data/assets/spells/x2_speed_2.png'))
                             
                         self.ui['spell_2'].active = False
                         
-                        
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_q:
-                       q_pressed = False
+                       button_conditions['switch'] = False
                     if event.key == pygame.K_e:
-                        e_pressed = False
+                        button_conditions['spell_1'] = False
                     if event.key == pygame.K_f:
-                        f_pressed = False
+                        button_conditions['spell_2'] = False
                     if event.key == pygame.K_a:
                         self.movement[0] = False
                     if event.key == pygame.K_d:
@@ -182,20 +189,25 @@ class Game():
             
             for name, obj in self.ui.items():
                 obj.form = self.player.form
-                
-                if name == 'switch' and q_pressed:
-                    obj.render(self.screen, 'pressed')
-                elif name == 'spell_1' and e_pressed:
-                    obj.render(self.screen, 'pressed')
-                elif name == 'spell_2' and f_pressed:
-                    obj.render(self.screen, 'pressed')
+
+                if name in button_conditions and button_conditions[name]:
+                    state = 'pressed'
                 else:
-                    obj.render(self.screen, mpos)
+                    state = mpos
+                    
+                obj.render(self.screen, state)
+                
+                    
+            for name, obj in self.player.buffs.items():
+                
+                render = obj.ui.render(self.screen, list(self.player.buffs).index(name))
+
+                if render != None:
+                    self.player.buffs.pop(render)
+                    break
             
             pygame.display.update()
             
             self.clock.tick(60)
     
 Game().run()
-
-

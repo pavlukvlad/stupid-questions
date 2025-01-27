@@ -1,4 +1,3 @@
-
 import pygame
 
 class PhysicsEntity():
@@ -15,9 +14,10 @@ class PhysicsEntity():
         self.flip = False
         self.set_action('idle')
         
-        self.buffs = []
+        self.buffs = {}
         
         self.last_movement = [0, 0]
+        self.yellow_sprite = None
     
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
@@ -26,7 +26,7 @@ class PhysicsEntity():
         if action != self.action:
             self.action = action
             self.animation = self.game.animations[self.type + '/' + self.action].copy()
-        
+            
     def update(self, tilemap, movement=(0, 0)):
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         
@@ -62,8 +62,8 @@ class PhysicsEntity():
             self.flip = True
             
         self.last_movement = movement
-        
-        self.velocity[1] = min(5, self.velocity[1] + 0.1)
+
+        self.velocity[1] = min(5, self.velocity[1] + 0.1 * self.game.player.slowdown)
         
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
@@ -71,7 +71,10 @@ class PhysicsEntity():
         self.animation.update()
         
     def render(self, surf, offset=(0, 0)):
-        surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), (self.pos[0] - offset[0] + self.anim_offset[0], self.pos[1] - offset[1] + self.anim_offset[1]+2))
+        surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), 
+                  (self.pos[0] - offset[0] + self.anim_offset[0], self.pos[1] - offset[1] + self.anim_offset[1] + 2))
+
+import pygame
 
 class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
@@ -82,12 +85,13 @@ class Player(PhysicsEntity):
         self.wall_slide = False
         self.was_falling = False
         self.move_speed = 0.1
-    
+        self.slowdown = 1.0
+
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement=movement)
-        
+
         self.air_time += 1
-        
+
         if self.collisions['down']:
             if self.was_falling:
                 self.set_action('land')
@@ -98,17 +102,14 @@ class Player(PhysicsEntity):
             if self.velocity[1] > 0.5:
                 self.was_falling = True
                 self.set_action('fall')
-        
+
         self.wall_slide = False
         if (self.collisions['right'] or self.collisions['left']) and self.air_time > 4:
             self.wall_slide = True
-            self.velocity[1] = min(self.velocity[1], 0.5)
-            if self.collisions['right']:
-                self.flip = False
-            else:
-                self.flip = True
+            self.velocity[1] = min(self.velocity[1], 0.5) * self.slowdown
+            self.flip = self.collisions['left']
             self.set_action('wall_slide')
-        
+
         if not self.wall_slide:
             if self.air_time > 4:
                 self.set_action('jump')
@@ -116,37 +117,65 @@ class Player(PhysicsEntity):
                 self.set_action('run')
             else:
                 self.set_action('idle')
-        
+
         if movement[0] > 0:
-            self.velocity[0] = min(self.velocity[0] + self.move_speed, self.move_speed)
+            self.velocity[0] = min(self.velocity[0] + self.move_speed * self.slowdown, self.move_speed)
         elif movement[0] < 0:
-            self.velocity[0] = max(self.velocity[0] - self.move_speed, -self.move_speed)
+            self.velocity[0] = max(self.velocity[0] - self.move_speed * self.slowdown, -self.move_speed)
         else:
             if self.velocity[0] > 0:
-                self.velocity[0] = max(self.velocity[0] - 0.1, 0)
+                self.velocity[0] = max(self.velocity[0] - 0.1 * self.slowdown, 0)
             else:
-                self.velocity[0] = min(self.velocity[0] + 0.1, 0)
+                self.velocity[0] = min(self.velocity[0] + 0.1 * self.slowdown, 0)
 
-    def render(self, surf, offset=(0, 0)):
-        super().render(surf, offset=offset)
-            
     def jump(self):
         if self.wall_slide:
-            if self.flip and self.last_movement[0] < 0:
-                self.velocity[0] = 3.5
-                self.velocity[1] = -2.5
-                self.air_time = 5
-                self.jumps = max(0, self.jumps - 1)
-                return True
-            elif not self.flip and self.last_movement[0] > 0:
-                self.velocity[0] = -3.5
-                self.velocity[1] = -2.5
+            if self.flip and self.last_movement[0] < 0 or not self.flip and self.last_movement[0] > 0:
+                self.velocity[0] = 3.5 * self.slowdown * (1 if self.flip else -1)
+                self.velocity[1] = -2.5 
                 self.air_time = 5
                 self.jumps = max(0, self.jumps - 1)
                 return True
                 
         elif self.jumps:
-            self.velocity[1] = -3
+            if self.slowdown < 1:
+                self.velocity[1] = -1
+            else:
+                self.velocity[1] = -3
+                
             self.jumps -= 1
             self.air_time = 5
             return True
+        
+    def render(self, surf, offset=(0, 0)):
+        def process_sprite(color_map):
+            sprite = self.animation.img()
+            sprite_copy = sprite.copy()
+
+            width, height = sprite_copy.get_size()
+            for x in range(width):
+                for y in range(height):
+                    r, g, b, a = sprite_copy.get_at((x, y))
+                    if (r, g, b) in color_map:
+                        sprite_copy.set_at((x, y), (*color_map[(r, g, b)], a))
+            return sprite_copy
+
+        color_maps = {
+            'X2Speed': {(255, 0, 0): (219, 179, 41)},
+            'X2Gravity': {(255, 0, 0): (219, 0, 209)}
+        }
+
+        for buff, color_map in color_maps.items():
+            if buff in self.buffs:
+                processed_sprite = process_sprite(color_map)
+                surf.blit(
+                    pygame.transform.flip(processed_sprite, self.flip, False),
+                    (
+                        self.pos[0] - offset[0] + self.anim_offset[0],
+                        self.pos[1] - offset[1] + self.anim_offset[1] + 2,
+                    ),
+                )
+                return
+
+        super().render(surf, offset=offset)
+
