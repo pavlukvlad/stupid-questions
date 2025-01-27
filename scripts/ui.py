@@ -15,6 +15,8 @@ class UI():
         self.original_y = y
         
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        
+        self.font = pygame.font.Font("data/texts/LuckiestGuy-Regular.ttf", 12)
 
 class SkillsUI(UI):
     def __init__(self, width, height, img, img_2, x, y, kd, key):
@@ -30,8 +32,6 @@ class SkillsUI(UI):
         self.kd_time = 0
         self.hover_end_time = 0 
         self.active = True
-
-        self.font = pygame.font.Font("data/texts/LuckiestGuy-Regular.ttf", 12)
 
     def render(self, surf, mpos):
         current_time = pygame.time.get_ticks()
@@ -61,6 +61,7 @@ class SkillsUI(UI):
             scaled_img = pygame.transform.scale(self.img, (self.width, self.height))
         else:
             scaled_img = pygame.transform.scale(self.img_2, (self.width, self.height))
+            
         surf.blit(scaled_img, (self.x, self.y))
 
         key_text = self.font.render(self.key, True, (0, 0, 0))
@@ -73,58 +74,124 @@ class SkillsUI(UI):
         text_x = square_x + (square_size - key_width) // 2
         text_y = square_y + (square_size - key_height) // 2
         
-        
-        if not self.active and self.kd_time != 0:
-            elapsed_seconds = (pygame.time.get_ticks() - self.kd_time) // 1000
-            time_left = max(self.kd - elapsed_seconds, 0)
-
-            if time_left <= 0:
-                self.active = True
-                self.kd_time = 0
-
-        if self.kd_time == 0 and not self.active:
-            self.kd_time = pygame.time.get_ticks()
-
         if not self.active:
-            elapsed_time = pygame.time.get_ticks() - self.kd_time
+            current_time = pygame.time.get_ticks()
+
+            if self.kd_time == 0:
+                self.kd_time = current_time
+
+            elapsed_time = current_time - self.kd_time
             cooldown_progress = elapsed_time / (self.kd * 1000)
 
-            if cooldown_progress < 1:
-                
-                overlay_height = int(self.height * cooldown_progress)+4
-                overlay_surface = pygame.Surface((scaled_img.get_width(), self.height), pygame.SRCALPHA)
+            if cooldown_progress >= 1:
+                self.active = True
+                self.kd_time = 0
+            else:
+                overlay_height = int((self.height - 10) * (1 - cooldown_progress))
+                overlay_surface = pygame.Surface((scaled_img.get_width() - 7, overlay_height), pygame.SRCALPHA)
                 overlay_surface.fill((0, 0, 0, 128))
 
-                final_overlay = pygame.Surface((scaled_img.get_width(), scaled_img.get_height()+4 - overlay_height), pygame.SRCALPHA)
-                final_overlay.blit(overlay_surface, (0, 0), (0, overlay_height, scaled_img.get_width(), scaled_img.get_height() - overlay_height))
-
-                final_overlay = pygame.transform.scale(final_overlay, (final_overlay.get_width() - 6, final_overlay.get_height()))
-                surf.blit(final_overlay, (self.x + 4, self.y + 4))
+                surf.blit(overlay_surface, (self.x + 4, self.y + self.height - overlay_height - 5))
         
         pygame.draw.rect(surf, (255, 255, 255), (square_x - 1, square_y - 1, square_size, square_size))
         pygame.draw.rect(surf, (0, 0, 0), (square_x - 1, square_y - 1, square_size, square_size), 2)
 
-        
         surf.blit(key_text, (text_x, text_y))
 
 class BuffUI(UI):
-    def __init__(self, width, height, img, x, y, duration):
-        super().__init__(width, height, x, y)
+    def __init__(self, name, img, duration, width, height):
+        super().__init__(width, height, 0, 0)
         
         self.img = img
         self.duration = duration
-        self.start_time = pygame.time.get_ticks()
+        self.add_time = pygame.time.get_ticks()
+        
+        self.active = True
+        self.kd_time = 0
+        
+        self.name = name
+        
+        self.create_duration = 0.3
+        self.dissapear_duration = 0.25
 
-    def render(self, surf):
-        scaled_img = pygame.transform.scale(self.img, (self.width, self.height))
-        surf.blit(scaled_img, (self.x, self.y))
+        self.target_x = 0
+        self.move_speed = 0.1
+        self.move_speed_2 = 0.5
+        
+        self.end = False
+        
+        self.font = pygame.font.Font("data/texts/LuckiestGuy-Regular.ttf", 9)
 
-        elapsed_seconds = (pygame.time.get_ticks() - self.start_time) // 1000
-        time_left = max(self.duration - elapsed_seconds, 0)
+    def render(self, surf, index):
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-        font = pygame.font.Font('data/texts/LuckiestGuy-Regular.ttf', 12)
-        time_text = font.render(f'{time_left}s', True, (255, 255, 255))
-        surf.blit(time_text, (self.x + self.width + 5, self.y))
+        if index > 0:
+            self.target_x = index * self.width
+            self.x += (self.target_x - self.x) * self.move_speed_2
+        else:
+            self.target_x = index * self.width
+            self.x += (self.target_x - self.x) * self.move_speed
 
-        if time_left <= 0:
-            pass
+        if self.active:
+            current_time = pygame.time.get_ticks()
+
+            if self.kd_time == 0:
+                self.kd_time = current_time
+
+            elapsed_time = current_time - self.kd_time
+            cooldown_progress = elapsed_time / (self.duration * 1000)
+            
+            remaining_time = max(0, (self.kd_time + self.duration * 1000 - current_time) / 1000)
+            key_text = self.font.render(str(int(remaining_time)), True, (0, 0, 0))
+            key_width, key_height = key_text.get_size()
+            square_size = max(key_width, key_height) + 4
+
+            kd_counter_surf = pygame.Surface((square_size, square_size), pygame.SRCALPHA)
+            pygame.draw.rect(kd_counter_surf, (255, 255, 255), (0, 0, square_size, square_size))
+            pygame.draw.rect(kd_counter_surf, (0, 0, 0), (0, 0, square_size, square_size), 2)
+            kd_counter_surf.blit(key_text, ((square_size - key_width) // 2, ((square_size - key_height) // 2)+1))
+
+            if cooldown_progress >= 1:
+                self.active = False
+                self.kd_time = 0
+
+            if current_time <= (self.add_time + self.create_duration * 1000):
+                elapsed_time = current_time - self.add_time
+                cooldown_progress = elapsed_time / (self.create_duration * 1000)
+
+                scaled_img = pygame.transform.scale(
+                    self.img, 
+                    (int(self.width * cooldown_progress), int(self.height * cooldown_progress))
+                )
+                
+                kd_counter_surf = pygame.transform.scale(
+                    kd_counter_surf, 
+                    (int(kd_counter_surf.get_width() * cooldown_progress), int(kd_counter_surf.get_height() * cooldown_progress))
+                )
+
+                surf.blit(scaled_img, (self.x + (25 - 25 * cooldown_progress), self.y + (25 - 25 * cooldown_progress)))
+                surf.blit(kd_counter_surf, ((self.x - square_size + 15), (self.y - square_size + 15)))
+
+            elif current_time >= (self.add_time + (self.duration * 1000 - self.dissapear_duration * 1000)):
+                self.end = True
+                
+                elapsed_time = current_time - (self.add_time + (self.duration * 1000 - self.dissapear_duration * 1000))
+                cooldown_progress = 1 - (elapsed_time / (self.dissapear_duration * 1000))
+
+                if cooldown_progress > 0:
+                    scaled_img = pygame.transform.scale(
+                        self.img, 
+                        (int(self.width * cooldown_progress), int(self.height * cooldown_progress))
+                    )
+                    
+                    surf.blit(scaled_img, (self.x + (25 - 25 * cooldown_progress), self.y + (25 - 25 * cooldown_progress)))
+                
+            else:
+                scaled_img = pygame.transform.scale(self.img, (self.width, self.height))
+                surf.blit(scaled_img, (self.x, self.y))
+                
+                surf.blit(kd_counter_surf, (self.x - square_size + 15, self.y - square_size + 15))
+            
+        else:
+            return self.name
+
