@@ -48,23 +48,23 @@ class Tilemap:
         return rects
 
 
-    def render(self, background_surf, physics_surf, decorations_surf, tileset, offset=(0, 0)):
+    def render(self, surf, decorations_surf, tileset, offset=(0, 0)):
             
-        for x in range(offset[0] // self.tile_size, (offset[0] + physics_surf.get_width()) // self.tile_size + 1):
-            for y in range(offset[1] // self.tile_size, (offset[1] + physics_surf.get_height()) // self.tile_size + 1):
+        for x in range(offset[0] // self.tile_size, (offset[0] + surf.get_width()) // self.tile_size + 1):
+            for y in range(offset[1] // self.tile_size, (offset[1] + surf.get_height()) // self.tile_size + 1):
                 physics_loc = str(x) + ';' + str(y)
                 decor_loc = str(x) + ':' + str(y)
                 background_loc = str(x) + '|' + str(y)
                    
                 if background_loc in self.tilemap:
                     tile = self.tilemap[background_loc]
-                    background_surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))     
+                    surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))     
                 
                 if physics_loc in self.tilemap:
                     tile = self.tilemap[physics_loc]
                     if not tile['tile_id'] in PHYSICS_TILES:
                         PHYSICS_TILES.append(tile['tile_id'])
-                    physics_surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
+                    surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                     
                 if decor_loc in self.tilemap:
                     tile = self.tilemap[decor_loc]
