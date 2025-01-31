@@ -1,33 +1,53 @@
-import pygame, sys
-
+import sys
+from array import array
+import pygame
+import moderngl
 from scripts.utils import Animation, Tileset, load_image
 from scripts.player import Player
 from scripts.tilemap import Tilemap
 from scripts.ui import SkillsUI, BuffUI
 from scripts.buff import *
+import os
+os.environ["SDL_VIDEO_X11_FORCE_EGL"] = "1"
 
 class Game():
     def __init__(self):
         pygame.init()
         
         self.font = pygame.font.SysFont('data/texts/BoutiqueBitmap9x9_1.9.ttf', 24)
-        self.screen = pygame.display.set_mode((960, 540))
+        self.screen = pygame.display.set_mode((960, 540), pygame.OPENGL | pygame.DOUBLEBUF)
         
+        # Create ModernGL context
+        self.ctx = moderngl.create_context()
+        
+        # Initialize OpenGL resources
+        self.quad_buffer = self.ctx.buffer(data=array('f', [
+            -1.0, 1.0, 0.0, 0.0,
+            1.0, 1.0, 1.0, 0.0,
+            -1.0, -1.0, 0.0, 1.0,
+            1.0, -1.0, 1.0, 1.0,
+        ]))
+        
+        vert_shader = open('shaders/shader.vert', 'r').read()
+        
+        frag_shader = open('shaders/shader.frag', 'r').read()
+        
+        self.program = self.ctx.program(vertex_shader=vert_shader, fragment_shader=frag_shader)
+        self.render_object = self.ctx.vertex_array(self.program, [(self.quad_buffer, '2f 2f', 'vert', 'texcoord')])
+        
+        # Surface setup
         self.display_width, self.display_height = 320, 180
-        
         self.display = pygame.Surface((self.display_width, self.display_height))
-        self.display_2 = pygame.Surface((self.display_width, self.display_height))
-        
+        self.display_2 = pygame.Surface((self.display_width, self.display_height), pygame.SRCALPHA)
         self.physics_display = pygame.Surface((self.display_width, self.display_height))
         self.decorations_display = pygame.Surface((self.display_width, self.display_height))
         self.background_display = pygame.Surface((self.display_width, self.display_height))
+        self.ui_display = pygame.Surface((960, 540))
         
         self.clock = pygame.time.Clock()
-        
         self.movement = [False, False]
         
         self.animations = {
-            ''
             'player/idle': Animation('data/assets/Animations/Player/idle/anim1.png', img_dur=30),
             'player/run': Animation('data/assets/Animations/Player/walk/anim1.png', img_dur=6),
             'player/jump': Animation('data/assets/Animations/Player/jump/anim1.png', img_dur=7, loop=False),
@@ -56,11 +76,6 @@ class Game():
     def load_level(self, level_name):
         self.tilemap.load('data/levels/' + level_name + '.json')
         
-        #self.leaf_spawners = []
-        #for key, tree in self.tilemap['tilemap'].items():
-        #    if ':' in key:
-        #        self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
-        
         self.player.pos = [14, 4]
         self.player.air_time = 0
             
@@ -71,9 +86,17 @@ class Game():
         self.scroll = [0, 0]
         self.dead = 0
         self.transition = -30
+
+    def surf_to_texture(self, surf):
+        tex = self.ctx.texture(surf.get_size(), 4)
+        tex.filter = (moderngl.NEAREST, moderngl.NEAREST)
+        tex.swizzle = 'BGRA' 
+        tex.write(surf.get_view('1'))
+        return tex
     
+
     def run(self):
-        
+        t = 0
         button_conditions = {
             'switch': False,
             'spell_1': False,
@@ -81,10 +104,11 @@ class Game():
         }
         
         while True:
+            t += self.clock.get_time() / 1000
+            self.ui_display.fill((0,0,255))
             self.background_display.fill((198, 183, 190))
             self.physics_display.fill((0, 0, 0))
             self.decorations_display.fill((0, 0, 0))
-
             self.display_2.fill((0, 0, 0, 0))
             
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
@@ -114,7 +138,6 @@ class Game():
                 buff.activate_effect()
             
             for event in pygame.event.get():
-                
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -125,37 +148,27 @@ class Game():
                     if event.key == pygame.K_d:
                         self.movement[1] = True
                     if event.key == pygame.K_w:
-                        if self.player.jump():
-                            pass
+                        self.player.jump()
                         
                     if event.key == pygame.K_q and self.ui['switch'].active:
                         button_conditions['switch'] = True
                         self.player.form = not self.player.form
-                        
                         self.ui['switch'].active = False
-                        
                         
                     if event.key == pygame.K_e and self.ui['spell_1'].active:
                         button_conditions['spell_1'] = True
-                        
                         if self.player.form:
                             self.player.buffs['Stun'] = Buff('Stun', 3, StunEffect, self.player, load_image('data/assets/spells/paralysed.png'))
-                        
                         else:
                             self.player.buffs['TimeStop'] = Buff('TimeStop', 3, TimeStopEffect, self.player, load_image('data/assets/spells/time_stop.png'))
-                            
                         self.ui['spell_1'].active = False
                             
-                        
                     if event.key == pygame.K_f and self.ui['spell_2'].active:
                         button_conditions['spell_2'] = True
-                        
                         if self.player.form:
                             self.player.buffs['X2Speed'] = Buff('X2Speed', 2, X2SpeedEffect, self.player, load_image('data/assets/spells/x2_speed.png'))
-                        
                         else:
                             self.player.buffs['X2Gravity'] = Buff('X2Gravity', 2, X2GravityEffect, self.player, load_image('data/assets/spells/x2_speed_2.png'))
-                            
                         self.ui['spell_2'].active = False
                         
                 if event.type == pygame.KEYUP:
@@ -170,44 +183,40 @@ class Game():
                     if event.key == pygame.K_d:
                         self.movement[1] = False
                         
-                        
             self.display.blit(self.background_display, (0,0))
-            
-            
             self.physics_display.set_colorkey((0, 0, 0))
             self.display.blit(self.physics_display, (0,0))
-
             self.decorations_display.set_colorkey((0, 0, 0))
             self.display.blit(self.decorations_display, (0,0))
             
-            self.display_2.blit(self.display, (0, 0))
-
-            self.screen.blit(pygame.transform.scale(self.display_2, self.screen.get_size()), (0,0))
-            
             img = self.font.render(str(int(self.clock.get_fps())), True, (1, 1, 1))
-            self.screen.blit(img, (930, 10))
-            
+            self.ui_display.blit(img, (930, 10))
+        
             for name, obj in self.ui.items():
                 obj.form = self.player.form
-
-                if name in button_conditions and button_conditions[name]:
-                    state = 'pressed'
-                else:
-                    state = mpos
-                    
-                obj.render(self.screen, state)
-                
-                    
+                state = 'pressed' if (name in button_conditions and button_conditions[name]) else mpos
+                obj.render(self.ui_display, state)
+            
             for name, obj in self.player.buffs.items():
-                
-                render = obj.ui.render(self.screen, list(self.player.buffs).index(name))
-
-                if render != None:
+                render = obj.ui.render(self.ui_display, list(self.player.buffs).index(name))
+                if render is not None:
                     self.player.buffs.pop(render)
                     break
             
-            pygame.display.update()
+            self.ui_display.set_colorkey((0,0,255))
+                
+            screen_surface = pygame.transform.scale(self.display, self.screen.get_size())
+            screen_surface.blit(self.ui_display, (0,0))
             
+            frame_tex = self.surf_to_texture(screen_surface)
+            frame_tex.use(0)
+            self.program['tex'] = 0
+            self.program['time'] = t
+            self.render_object.render(mode=moderngl.TRIANGLE_STRIP)
+            
+            pygame.display.flip()
             self.clock.tick(60)
-    
-Game().run()
+            frame_tex.release()
+
+if __name__ == "__main__":
+    Game().run()
