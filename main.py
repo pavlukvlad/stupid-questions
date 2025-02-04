@@ -31,6 +31,8 @@ class Game():
         self.current_zoom = 1.0
         self.target_zoom = 1.0
         
+        self.screen_shake = 0 
+        
         load_particle_images('data/assets/particles')
         
         self.animations = {
@@ -130,6 +132,10 @@ class Game():
                             ))
                         
             if self.player.action == 'land':
+                
+                if self.screen_shake < 5:
+                    self.screen_shake = 5
+                
                 for i in range(random.randint(1,2)):
                     if i == 1:
                         if random.randint(1,10) == 5:
@@ -183,6 +189,11 @@ class Game():
                                 0,
                                 particle_color
                             ))
+            
+            if self.screen_shake > 0:
+                self.screen_shake -= 1
+                self.scroll[0] += random.randint((self.screen_shake//5) * -1, (self.screen_shake//5))
+                self.scroll[1] += random.randint((self.screen_shake//5) * -1, (self.screen_shake//5))
                         
             for particle in self.particles[:]:
                 particle.update(self.clock.get_time() / 45)
