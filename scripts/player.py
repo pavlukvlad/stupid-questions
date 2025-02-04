@@ -95,12 +95,12 @@ class Player(PhysicsEntity):
         self.air_time += 1
 
         if self.slowdown < 1 or self.slowdown_0 < 1:
-            if round(self.slowdown_0, 1) == self.slowdown:
+            if round(self.slowdown_0, 2) == self.slowdown:
                 self.set_action('levitation')
-            elif round(self.slowdown_0, 1) > self.slowdown:
+            elif round(self.slowdown_0, 2) > self.slowdown:
                 self.set_action('levitation_start')
                 self.slowdown_0 -= 0.05
-            elif round(self.slowdown_0, 1) < self.slowdown:
+            elif round(self.slowdown_0, 2) < self.slowdown:
                 self.set_action('levitation_end')
                 self.slowdown_0 += 0.05
 
