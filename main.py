@@ -91,7 +91,7 @@ class Game():
             
             self.ui_surf.fill((0,0,255))
             self.main_surf.fill((198, 183, 190))
-            self.decoration_surf.fill((0, 0, 0))
+            self.decoration_surf.fill((0, 0, 0, 0))
             
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
@@ -254,7 +254,7 @@ class Game():
 
             zoomed_main_surf = pygame.transform.smoothscale(self.main_surf, zoomed_size)
             self.display.blit(zoomed_main_surf, (offset_x, offset_y))
-
+            
             self.decoration_surf.set_colorkey((0, 0, 0))
             zoomed_decoration_surf = pygame.transform.smoothscale(self.decoration_surf, zoomed_size)
             self.display.blit(zoomed_decoration_surf, (offset_x, offset_y))

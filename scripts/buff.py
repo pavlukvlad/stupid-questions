@@ -25,7 +25,7 @@ def X2GravityEffect(self):
     if self.ui.end:
         self.entity.slowdown = 1
     else:
-        self.entity.slowdown = 0.1
+        self.entity.slowdown = 0.25
 
 def TimeStopEffect(self):
     print(self.name)

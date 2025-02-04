@@ -41,17 +41,14 @@ void main() {
 
     color += (noise(uv * 50.0 + time) - 0.5) * 0.08;
 
-    // Плавное изменение интенсивности цвета с учетом пропадания
-    float intensity = (sin(time * 2.0) * 0.5 + 0.5) * exp(-time * 0.1);  // Добавлено экспоненциальное затухание
+    float intensity = (sin(time * 2.0) * 0.5 + 0.5) * exp(-time * 0.1);
 
-    // Добавление фиолетового оттенка при активном gravity
     if (gravity) {
-        color.r += 138.0 / 255.0 * intensity * 0.05;  // Снижение насыщенности
+        color.r += 138.0 / 255.0 * intensity * 0.05;
         color.g += 43.0 / 255.0 * intensity * 0.05;
         color.b += 226.0 / 255.0 * intensity * 0.05;
     }
 
-    // Добавление желтого оттенка при активном speed
     if (speed) {
         color.r += 1.0 * intensity * 0.05;
         color.g += 1.0 * intensity * 0.05;

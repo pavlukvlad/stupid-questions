@@ -55,6 +55,7 @@ class Tilemap:
                 physics_loc = str(x) + ';' + str(y)
                 decor_loc = str(x) + ':' + str(y)
                 background_loc = str(x) + '|' + str(y)
+                
                    
                 if background_loc in self.tilemap:
                     tile = self.tilemap[background_loc]
@@ -64,9 +65,23 @@ class Tilemap:
                     tile = self.tilemap[physics_loc]
                     if not tile['tile_id'] in PHYSICS_TILES:
                         PHYSICS_TILES.append(tile['tile_id'])
+
+                    
+                    shadow = tileset[tile['tile_id']].copy()
+                    shadow.set_alpha(50)
+                    shadow.fill((1,0,0))
+                    surf.blit(shadow, (tile['pos'][0] * self.tile_size - offset[0]+1, tile['pos'][1] * self.tile_size - offset[1]+1))
+                    
                     surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                     
                 if decor_loc in self.tilemap:
                     tile = self.tilemap[decor_loc]
+                    
+                    shadow = tileset[tile['tile_id']].copy()
+                    shadow.fill((1,0,0), special_flags = pygame.BLEND_RGBA_MULT)
+                    shadow.set_alpha(50)
+
+                    surf.blit(shadow, (tile['pos'][0] * self.tile_size - offset[0]+1, tile['pos'][1] * self.tile_size - offset[1]+1))
+                    
                     decorations_surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))  
                
