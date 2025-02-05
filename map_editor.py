@@ -157,7 +157,6 @@ class Editor:
             
             self.tilemap.render(
                 self.background_display,
-                self.physics_display,
                 self.decorations_display,
                 self.tileset,
                 offset=render_scroll,
@@ -175,9 +174,8 @@ class Editor:
                 pygame.transform.scale(self.background_display, self.screen.get_size()), (0, 0)
             )
 
-            self.physics_display.set_colorkey((0, 0, 0))
             self.screen.blit(
-                pygame.transform.scale(self.physics_display, self.screen.get_size()), (0, 0)
+                pygame.transform.scale(self.background_display, self.screen.get_size()), (0, 0)
             )
 
             self.decorations_display.set_colorkey((0, 0, 0))
