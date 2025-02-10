@@ -45,13 +45,14 @@ def load_particle_images(path):
 
 class Particle(object):
 
-    def __init__(self, x, y, particle_type, motion, decay_rate, start_frame, custom_color=None, physics=False):
+    def __init__(self, x, y, particle_type, motion, decay_rate, start_frame, custom_color=None, physics=False, alpha=255):
         self.x = x
         self.y = y
         self.type = particle_type
         self.motion = motion
         self.decay_rate = decay_rate
         self.color = custom_color
+        self.alpha = alpha
         self.frame = start_frame
         self.physics = physics
         self.orig_motion = self.motion
@@ -66,10 +67,12 @@ class Particle(object):
         if self.render:
             #if self.frame > len(particle_images[self.type]):
             #    self.frame = len(particle_images[self.type])
+            
             if self.color == None:
+                particle_images[self.type][int(self.frame)].set_alpha(self.alpha)
                 blit_center(surface,particle_images[self.type][int(self.frame)],(self.x-scroll[0],self.y-scroll[1]))
             else:
-                blit_center(surface,swap_color(particle_images[self.type][int(self.frame)],(255,255,255),self.color),(self.x-scroll[0],self.y-scroll[1]))
+                blit_center(surface,swap_color(particle_images[self.type][int(self.frame)],(255,255,255),self.color,self.alpha),(self.x-scroll[0],self.y-scroll[1]))
 
     def update(self, dt):
         self.time_alive += dt
@@ -93,11 +96,12 @@ class Particle(object):
 
 # other useful functions
 
-def swap_color(img,old_c,new_c):
+def swap_color(img,old_c,new_c, alpha):
     global e_colorkey
     img.set_colorkey(old_c)
     surf = img.copy()
     surf.fill(new_c)
     surf.blit(img,(0,0))
     surf.set_colorkey(e_colorkey)
+    surf.set_alpha(alpha)
     return surf

@@ -64,7 +64,7 @@ class SkillsUI(UI):
             
         surf.blit(scaled_img, (self.x, self.y))
 
-        key_text = self.font.render(self.key, True, (0, 0, 0))
+        key_text = self.font.render(self.key, True, (0, 0, 1))
         key_width, key_height = key_text.get_size()
         square_size = max(key_width, key_height) + 4
 
@@ -94,7 +94,7 @@ class SkillsUI(UI):
                 surf.blit(overlay_surface, (self.x + 4, self.y + self.height - overlay_height - 5))
         
         pygame.draw.rect(surf, (255, 255, 255), (square_x - 1, square_y - 1, square_size, square_size))
-        pygame.draw.rect(surf, (0, 0, 0), (square_x - 1, square_y - 1, square_size, square_size), 2)
+        pygame.draw.rect(surf, (0, 0, 1), (square_x - 1, square_y - 1, square_size, square_size), 2)
 
         surf.blit(key_text, (text_x, text_y))
 
@@ -142,13 +142,13 @@ class BuffUI(UI):
             cooldown_progress = elapsed_time / (self.duration * 1000)
             
             remaining_time = max(0, (self.kd_time + self.duration * 1000 - current_time) / 1000)
-            key_text = self.font.render(str(int(remaining_time)), True, (0, 0, 0))
+            key_text = self.font.render(str(int(remaining_time)), True, (0, 0, 1))
             key_width, key_height = key_text.get_size()
             square_size = max(key_width, key_height) + 4
 
             kd_counter_surf = pygame.Surface((square_size, square_size), pygame.SRCALPHA)
             pygame.draw.rect(kd_counter_surf, (255, 255, 255), (0, 0, square_size, square_size))
-            pygame.draw.rect(kd_counter_surf, (0, 0, 0), (0, 0, square_size, square_size), 2)
+            pygame.draw.rect(kd_counter_surf, (0, 0, 1), (0, 0, square_size, square_size), 2)
             kd_counter_surf.blit(key_text, ((square_size - key_width) // 2, ((square_size - key_height) // 2)+1))
 
             if cooldown_progress >= 1:

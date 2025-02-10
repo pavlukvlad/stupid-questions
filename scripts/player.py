@@ -94,6 +94,9 @@ class Player(PhysicsEntity):
 
         self.air_time += 1
 
+        if self.action == 'levitation_end' and self.slowdown_0 == 1.0:
+            self.action = 'idle'
+
         if self.slowdown < 1 or self.slowdown_0 < 1:
             if round(self.slowdown_0, 2) == self.slowdown:
                 self.set_action('levitation')
@@ -181,7 +184,7 @@ class Player(PhysicsEntity):
             return True
         
     def render(self, surf, offset=(0, 0)):
-
+        
         def process_sprite(color_map):
             sprite = self.animation.img()
             sprite_copy = sprite.copy()
