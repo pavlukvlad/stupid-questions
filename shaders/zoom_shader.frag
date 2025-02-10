@@ -46,7 +46,7 @@ void main() {
 
     color.rgb += (noise(uv * 50.0 + time) - 0.5) * 0.1 *zoom;
 
-    color.rgb = mix(vec3(dot(color.rgb, vec3(0.299, 0.587, 0.114))), color.rgb, 0.8);
+    color.rgb = mix(vec3(dot(color.rgb, vec3(0.299, 0.587, 0.114))), color.rgb, 0.1);
     color.rgb = mix(vec3(dot(color.rgb, vec3(0, 0, 0))), color.rgb, 0.9);
 
     f_color = color;

@@ -70,7 +70,7 @@ class Tilemap:
                     shadow = tileset[tile['tile_id']].copy()
                     shadow.set_alpha(50)
                     shadow.fill((1,0,0))
-                    surf.blit(shadow, (tile['pos'][0] * self.tile_size - offset[0]+1, tile['pos'][1] * self.tile_size - offset[1]+1))
+                    #surf.blit(shadow, (tile['pos'][0] * self.tile_size - offset[0]+1, tile['pos'][1] * self.tile_size - offset[1]+1))
                     
                     surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                     
@@ -81,7 +81,7 @@ class Tilemap:
                     shadow.fill((1,0,0), special_flags = pygame.BLEND_RGBA_MULT)
                     shadow.set_alpha(50)
 
-                    surf.blit(shadow, (tile['pos'][0] * self.tile_size - offset[0]+1, tile['pos'][1] * self.tile_size - offset[1]+1))
+                    #surf.blit(shadow, (tile['pos'][0] * self.tile_size - offset[0]+1, tile['pos'][1] * self.tile_size - offset[1]+1))
                     
                     decorations_surf.blit(tileset[tile['tile_id']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))  
                

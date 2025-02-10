@@ -157,7 +157,6 @@ class Editor:
             
             self.tilemap.render(
                 self.background_display,
-                self.physics_display,
                 self.decorations_display,
                 self.tileset,
                 offset=render_scroll,
