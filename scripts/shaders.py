@@ -49,7 +49,7 @@ class Shader:
         frame_tex = self.surf_to_texture(surf)
         frame_tex.use(0)
 
-        program = self.programs[self.current_shader]
+        program = self.programs[0]
         
         program['tex'].value = 0
         program['time'].value = t
@@ -57,21 +57,18 @@ class Shader:
         program['speed'].value = speed
         program['zoom'].value = zoom
 
-        self.render_objects[self.current_shader].render(mode=moderngl.TRIANGLE_STRIP)
+        self.render_objects[0].render(mode=moderngl.TRIANGLE_STRIP)
         
         frame_tex.release()
-    
-        frame_tex = self.surf_to_texture(ui_surf)
-        frame_tex.use(0)
 
-        program = self.programs[self.current_shader]
+        ui_tex = self.surf_to_texture(ui_surf)
+        ui_tex.use(0)
+
+        program = self.programs[1]
         
         program['tex'].value = 0
         program['time'].value = t
-        program['gravity'].value = gravity
-        program['speed'].value = speed
-        program['zoom'].value = zoom
 
-        self.render_objects[self.current_shader].render(mode=moderngl.TRIANGLE_STRIP)
+        self.render_objects[1].render(mode=moderngl.TRIANGLE_STRIP)
         
-        frame_tex.release()
+        ui_tex.release()

@@ -17,7 +17,7 @@ class Game():
         self.font = pygame.font.SysFont('data/texts/BoutiqueBitmap9x9_1.9.ttf', 24)
         self.screen = pygame.display.set_mode((960, 540), pygame.OPENGL | pygame.DOUBLEBUF)
         
-        self.main_shader = Shader('shader', ['shader', 'zoom_shader'])
+        self.main_shader = Shader('shader', ['game_shader', 'ui_shader'])
 
         self.display_width, self.display_height = 320, 180
         
@@ -95,9 +95,9 @@ class Game():
             self.current_zoom += round((self.target_zoom - self.current_zoom) * 0.1, 4)
             
             
-            self.ui_surf.fill((0,0,255))
+            self.ui_surf.fill((0,0,0))
             self.main_surf.fill((198, 183, 190))
-            self.decoration_surf.fill((0, 0, 0, 0))
+            self.decoration_surf.fill((0, 0, 0))
             
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
@@ -132,7 +132,8 @@ class Game():
                                 [self.player.velocity[0], -0.1],
                                 0.5, 
                                 0,
-                                particle_color
+                                particle_color,
+                                alpha=100
                             ))
                         
             if self.player.action == 'land':
@@ -160,11 +161,22 @@ class Game():
                                 [x, -0.2],
                                 0.5, 
                                 0,
-                                particle_color
+                                particle_color,
+                                alpha=150
                             ))
             
-            if self.player.action == 'jump':
-                if random.randint(1,50) == 1:
+            if self.player.action == 'jump' or self.player.action == 'levitation':
+                
+                if self.player.action == 'levitation':
+                    color = (119, 50, 109)
+                    alpha = 40
+                    x = 1.5
+                else:
+                    color = (215,215,215)
+                    alpha = 100
+                    x=1
+                    
+                if random.randint(1,int(50/x)) == 1:
                     self.particles.append(
                         Particle(
                             self.player.pos[0] + self.player.size[0] // 2 + random.randint(-3, 3),
@@ -173,9 +185,10 @@ class Game():
                             [0, 1],
                             0.5, 
                             0,
-                            (215,215,215)
+                            color,
+                            alpha=alpha
                         ))
-                
+
             if self.player.action == 'wall_slide':
                 for i in range(random.randint(1,3)):
                     if random.randint(1,10) == 1:
@@ -191,7 +204,8 @@ class Game():
                                 [0, (self.player.velocity[0]*-1)*2],
                                 0.5, 
                                 0,
-                                particle_color
+                                particle_color,
+                                alpha=200
                             ))
             
             if self.screen_shake > 0:
@@ -271,7 +285,7 @@ class Game():
             self.decoration_surf.set_colorkey((0, 0, 0))
             self.display.blit(self.decoration_surf, (offset_x, offset_y))
             
-            img = self.font.render(str(int(self.clock.get_fps())), True, (1, 1, 1))
+            img = self.font.render(str(int(self.clock.get_fps())), True, (255, 255, 255))
             self.ui_surf.blit(img, (930, 10))
         
             for name, obj in self.ui.items():
@@ -284,8 +298,6 @@ class Game():
                 if render is not None:
                     self.player.buffs.pop(render)
                     break
-            
-            self.ui_surf.set_colorkey((0,0,255))
                 
             screen_surface = pygame.transform.scale(self.display, self.screen.get_size())
             

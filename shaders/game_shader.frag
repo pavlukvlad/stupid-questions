@@ -23,13 +23,20 @@ float noise(vec2 p) {
 void main() {
     vec2 uv = uvs;
 
+
+    vec2 sample_pos = vec2(uvs.x, uvs.y);
+
+    if (texture(tex, sample_pos).r == 0 && texture(tex, sample_pos).g == 0 && texture(tex, sample_pos).b == 0) {
+        discard;
+    }
+
     float shake = (noise(vec2(time)) - 0.5) * 0.0009;
     uv.x += shake;
     uv.y += (noise(vec2(time * 0.5)) - 0.5) * 0.0009;
 
     vec2 offset = vec2(0.001, 0.001);
     vec4 color = texture(tex, uv);
-
+        
     float intensity = (sin(time * 2.0) * 0.5 + 0.5) * exp(-time * 0.1);
 
     color.r = texture(tex, uv + offset * vec2(-1.0, 0.5) * (1.0 + sin(time)) * 1.1).r + (gravity[0] * intensity * 0.05) + (speed[0] * intensity * 0.05);
