@@ -23,6 +23,7 @@ class Game():
         
         self.display = pygame.Surface((self.display_width, self.display_height))
         
+        self.background_surf = pygame.Surface((960, 540))
         self.main_surf = pygame.Surface((self.display_width, self.display_height))
         self.decoration_surf = pygame.Surface((self.display_width, self.display_height))
         self.ui_surf = pygame.Surface((960, 540))
@@ -32,8 +33,7 @@ class Game():
         
         #self.data = open('data/saves/last.json')   
         
-        self.current_zoom = 1.0
-        self.target_zoom = 1.0
+        self.noise_cof = 1.0
         
         self.screen_shake = 0 
         
@@ -72,6 +72,7 @@ class Game():
         pygame.display.set_caption('stupid-questions')
         
         self.t = 0
+        
         self.button_conditions = {'switch': False, 'spell_1': False, 'spell_2': False}
         
     def load_level(self, level_name):
@@ -81,6 +82,8 @@ class Game():
         self.player.air_time = 0
         
         self.scroll = [0, 0]
+        
+        self.screen_color = [0,0,0]
 
     def run(self):
         
@@ -88,15 +91,13 @@ class Game():
             self.t += self.clock.get_time() / 1000
             
             if 'X2Gravity' in self.player.buffs or 'X2Speed' in self.player.buffs:
-                self.target_zoom = 1.3
+                self.noise_cof = 0.7
             else:
-                self.target_zoom = 1  
+                self.noise_cof = 1.0
             
-            self.current_zoom += round((self.target_zoom - self.current_zoom) * 0.1, 4)
-            
-            
+            self.background_surf.fill((198, 183, 190))
             self.ui_surf.fill((0,0,0))
-            self.main_surf.fill((198, 183, 190))
+            self.main_surf.fill((0, 0, 0))
             self.decoration_surf.fill((0, 0, 0))
             
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
@@ -165,18 +166,9 @@ class Game():
                                 alpha=150
                             ))
             
-            if self.player.action == 'jump' or self.player.action == 'levitation':
-                
-                if self.player.action == 'levitation':
-                    color = (119, 50, 109)
-                    alpha = 40
-                    x = 1.5
-                else:
-                    color = (215,215,215)
-                    alpha = 100
-                    x=1
+            if self.player.action == 'jump':
                     
-                if random.randint(1,int(50/x)) == 1:
+                if random.randint(1,int(50)) == 1:
                     self.particles.append(
                         Particle(
                             self.player.pos[0] + self.player.size[0] // 2 + random.randint(-3, 3),
@@ -185,8 +177,8 @@ class Game():
                             [0, 1],
                             0.5, 
                             0,
-                            color,
-                            alpha=alpha
+                            (215,215,215),
+                            alpha=100
                         ))
 
             if self.player.action == 'wall_slide':
@@ -195,10 +187,15 @@ class Game():
                         particle_color = (140,140,140, 150)
                         if random.randint(1,10) == 5:
                             particle_color = (51,51,51, 150)
+                    
+                        if self.player.flip:
+                            kef = -1.5
+                        else:
+                            kef = 2.7
                             
                         self.particles.append(
                             Particle(
-                                self.player.pos[0] + self.player.size[0] // 2,
+                                self.player.pos[0] + self.player.size[0] // 2 + kef,
                                 self.player.pos[1],
                                 'grass', 
                                 [0, (self.player.velocity[0]*-1)*2],
@@ -298,15 +295,33 @@ class Game():
                 if render is not None:
                     self.player.buffs.pop(render)
                     break
-                
+            
             screen_surface = pygame.transform.scale(self.display, self.screen.get_size())
             
-            self.main_shader.render(screen_surface, self.ui_surf, self.t, 
-                                    # gravity sreen effect
-                                    [138.0 / 255, 43.0 / 255, 226.0 / 255] if 'X2Gravity' in self.player.buffs else [0.0,0.0,0.0],
-                                    # speed screen effect
-                                    [1.0,1.0,0.0] if 'X2Speed' in self.player.buffs else [0.0,0.0,0.0],
-                                    round(self.current_zoom, 2))
+            if 'X2Gravity' in self.player.buffs:
+                
+                if self.screen_color[0] < 138.0:
+                    self.screen_color[0] += 1.38
+                    self.screen_color[1] += 0.43
+                    self.screen_color[2] += 2.26
+                    
+            elif 'X2Speed' in self.player.buffs:
+                
+                if self.screen_color[0] < 245.0:
+                    self.screen_color[0] += 2.45
+                    self.screen_color[1] += 2.45
+
+            elif self.screen_color[0] > 0.0:
+                self.screen_color[0] *= 0.925
+                self.screen_color[1] *= 0.925
+                self.screen_color[2] *= 0.925
+
+            if self.screen_color[0] < 1:
+                self.screen_color = [0,0,0] 
+            
+            self.main_shader.render(screen_surface, self.ui_surf, self.background_surf, self.t,
+                                    self.screen_color,
+                                    self.noise_cof)
             
             pygame.display.flip()
             self.clock.tick(60)

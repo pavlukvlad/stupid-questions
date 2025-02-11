@@ -44,22 +44,29 @@ class Shader:
         else:
             raise ValueError("Invalid shader index")
 
-    def render(self, surf, ui_surf, t, gravity, speed, zoom):
+    def render(self, surf, ui_surf, bg_surf, t, color, noise_cof):
+        
+        color = [x / 255 for x in color]
+        
+        bg_tex = self.surf_to_texture(bg_surf)
+        bg_tex.use(0)
         
         frame_tex = self.surf_to_texture(surf)
-        frame_tex.use(0)
+        frame_tex.use(1)
 
         program = self.programs[0]
         
-        program['tex'].value = 0
+        program['bg_tex'].value = 0
+        program['tex'].value = 1
         program['time'].value = t
-        program['gravity'].value = gravity
-        program['speed'].value = speed
-        program['zoom'].value = zoom
+        #program['plus_color'].value = color
+        program['noise_cof'].value = noise_cof
 
         self.render_objects[0].render(mode=moderngl.TRIANGLE_STRIP)
         
+        bg_tex.release()
         frame_tex.release()
+        
 
         ui_tex = self.surf_to_texture(ui_surf)
         ui_tex.use(0)

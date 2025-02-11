@@ -15,14 +15,15 @@ float noise(vec2 p) {
 }
 
 void main() {
-    vec2 uv = uvs;
 
-    vec2 sample_pos = vec2(uvs.x, uvs.y);
+    
 
-    if (texture(tex, sample_pos).r == 0 && texture(tex, sample_pos).g == 0 && texture(tex, sample_pos).b == 0) {
+    if (texture(tex, uvs).r == 0 && texture(tex, uvs).g == 0 && texture(tex, uvs).b == 0) {
         discard;
     }
-
+    
+    vec2 uv = uvs;
+    
     vec2 offset = vec2(0.001, 0.001);
     vec4 color = texture(tex, uv);
 
@@ -41,7 +42,7 @@ void main() {
     color.rgb += (noise(uv * 50.0 + time) - 0.5) * 0.05;
 
     color.rgb = mix(vec3(dot(color.rgb, vec3(0.299, 0.587, 0.114))), color.rgb, 0.6);
-    color.rgb = mix(vec3(dot(color.rgb, vec3(0, 0, 0))), color.rgb, 0.9);
+    color.rgb = mix(vec3(dot(color.rgb, vec3(0, 0, 0))), color.rgb, 0.8);
 
     f_color = color;
 }
